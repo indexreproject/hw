@@ -217,8 +217,34 @@ Total number of peer(s): 2
 -----------------------------------------------------------------------------
  Area Id         Interface                  Neighbor id          State       
  0.0.0.0         GE1/0/2                    172.16.0.2           Full        
+ 0.0.0.0         GE1/0/4                    172.16.0.1           Full        
  0.0.0.0         GE1/0/6                    172.16.0.3           Full        
 -----------------------------------------------------------------------------
 
 ```
 
+*Проверки связаности*
+
+SPINE1>SPINE1
+
+```html
+interface LoopBack1
+ ip address 172.31.0.1 255.255.255.255
+ ospf enable 100 area 0.0.0.0
+#
+return
+<SPINE1>ping -a 172.31.0.1 172.31.0.2
+  PING 172.31.0.2: 56  data bytes, press CTRL_C to break
+    Reply from 172.31.0.2: bytes=56 Sequence=1 ttl=254 time=12 ms
+    Reply from 172.31.0.2: bytes=56 Sequence=2 ttl=254 time=5 ms
+    Reply from 172.31.0.2: bytes=56 Sequence=3 ttl=254 time=10 ms
+    Reply from 172.31.0.2: bytes=56 Sequence=4 ttl=254 time=14 ms
+    Reply from 172.31.0.2: bytes=56 Sequence=5 ttl=254 time=9 ms
+
+  --- 172.31.0.2 ping statistics ---
+    5 packet(s) transmitted
+    5 packet(s) received
+    0.00% packet loss
+    round-trip min/avg/max = 5/10/14 ms
+
+```
