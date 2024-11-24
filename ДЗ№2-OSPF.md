@@ -15,4 +15,4 @@ Underlay. OSPF
 
 Схема сети:
 
-https://github.com/indexreproject/hw/blob/main/CLOS.png
+CLOS.png
