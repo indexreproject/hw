@@ -249,9 +249,9 @@ return
 
 ```
 
-SPINE1>LEAF1
-SPINE1>LEAF2
-SPINE1>LEAF1
+**SPINE1>LEAF1**
+**SPINE1>LEAF2**
+**SPINE1>LEAF1**
 
 ```html
 <SPINE1>ping -a 172.31.0.1 172.16.0.1
@@ -300,9 +300,9 @@ SPINE1>LEAF1
 
 
 
-SPINE2>LEAF1
-SPINE2>LEAF2
-SPINE2>LEAF3
+**SPINE2>LEAF1**
+**SPINE2>LEAF2**
+**SPINE2>LEAF3**
 
 ```html
 
@@ -355,4 +355,53 @@ return
     0.00% packet loss
     round-trip min/avg/max = 3/4/6 ms
     
+```
+
+*Вывод топологии*
+
+**SPINE1**
+
+```html
+
+<SPINE1>dis ospf top
+
+          OSPF Process 100 with Router ID 172.31.0.1
+Bits :
+B - ABR    E - ASBR    V - VIRTUAL    NT - NSSA Translator
+
+OSPF Area 0.0.0.0 topology
+----------------------------------------------------------------
+Type  ID                  Bits Metric  Next-Hop        Interface
+Rtr   172.16.0.1               1       10.1.0.3        GE1/0/3        
+Rtr   172.16.0.2               1       10.1.0.1        GE1/0/1        
+Rtr   172.16.0.3               1       10.1.0.5        GE1/0/5        
+Rtr   172.31.0.1               --
+Rtr   172.31.0.2               2       10.1.0.5        GE1/0/5        
+                                       10.1.0.3        GE1/0/3        
+                                       10.1.0.1        GE1/0/1
+
+```
+
+
+**SPINE2**
+
+```html
+
+<SPINE2>dis ospf to
+
+          OSPF Process 100 with Router ID 172.31.0.2
+Bits :
+B - ABR    E - ASBR    V - VIRTUAL    NT - NSSA Translator
+
+OSPF Area 0.0.0.0 topology
+----------------------------------------------------------------
+Type  ID                  Bits Metric  Next-Hop        Interface
+Rtr   172.16.0.1               1       10.2.0.2        GE1/0/4        
+Rtr   172.16.0.2               1       10.2.0.1        GE1/0/2        
+Rtr   172.16.0.3               1       10.2.0.4        GE1/0/6        
+Rtr   172.31.0.1               2       10.2.0.4        GE1/0/6        
+                                       10.2.0.2        GE1/0/4        
+                                       10.2.0.1        GE1/0/2        
+Rtr   172.31.0.2               --
+
 ```
