@@ -15,4 +15,4 @@ Underlay. OSPF
 
 Схема сети:
 
-CLOS.png
+![CLOS](CLOS.png)
