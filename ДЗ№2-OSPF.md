@@ -248,3 +248,111 @@ return
     round-trip min/avg/max = 5/10/14 ms
 
 ```
+
+SPINE1>LEAF1
+SPINE1>LEAF2
+SPINE1>LEAF1
+
+```html
+<SPINE1>ping -a 172.31.0.1 172.16.0.1
+  PING 172.16.0.1: 56  data bytes, press CTRL_C to break
+    Reply from 172.16.0.1: bytes=56 Sequence=1 ttl=255 time=11 ms
+    Reply from 172.16.0.1: bytes=56 Sequence=2 ttl=255 time=5 ms
+    Reply from 172.16.0.1: bytes=56 Sequence=3 ttl=255 time=4 ms
+    Reply from 172.16.0.1: bytes=56 Sequence=4 ttl=255 time=7 ms
+    Reply from 172.16.0.1: bytes=56 Sequence=5 ttl=255 time=4 ms
+
+  --- 172.16.0.1 ping statistics ---
+    5 packet(s) transmitted
+    5 packet(s) received
+    0.00% packet loss
+    round-trip min/avg/max = 4/6/11 ms
+ 
+<SPINE1>ping -a 172.31.0.1 172.16.0.2
+  PING 172.16.0.2: 56  data bytes, press CTRL_C to break
+    Reply from 172.16.0.2: bytes=56 Sequence=1 ttl=255 time=7 ms
+    Reply from 172.16.0.2: bytes=56 Sequence=2 ttl=255 time=4 ms
+    Reply from 172.16.0.2: bytes=56 Sequence=3 ttl=255 time=3 ms
+    Reply from 172.16.0.2: bytes=56 Sequence=4 ttl=255 time=3 ms
+    Reply from 172.16.0.2: bytes=56 Sequence=5 ttl=255 time=6 ms
+
+  --- 172.16.0.2 ping statistics ---
+    5 packet(s) transmitted
+    5 packet(s) received
+    0.00% packet loss
+    round-trip min/avg/max = 3/4/7 ms
+ 
+<SPINE1>ping -a 172.31.0.1 172.16.0.3
+  PING 172.16.0.3: 56  data bytes, press CTRL_C to break
+    Reply from 172.16.0.3: bytes=56 Sequence=1 ttl=255 time=8 ms
+    Reply from 172.16.0.3: bytes=56 Sequence=2 ttl=255 time=3 ms
+    Reply from 172.16.0.3: bytes=56 Sequence=3 ttl=255 time=6 ms
+    Reply from 172.16.0.3: bytes=56 Sequence=4 ttl=255 time=4 ms
+    Reply from 172.16.0.3: bytes=56 Sequence=5 ttl=255 time=5 ms
+
+  --- 172.16.0.3 ping statistics ---
+    5 packet(s) transmitted
+    5 packet(s) received
+    0.00% packet loss
+    round-trip min/avg/max = 3/5/8 ms
+
+```
+
+
+
+SPINE2>LEAF1
+SPINE2>LEAF2
+SPINE2>LEAF3
+
+```html
+
+<SPINE2>dis cur int lo1
+#
+interface LoopBack1
+ ip address 172.31.0.2 255.255.255.255
+ ospf enable 100 area 0.0.0.0
+#
+return
+<SPINE2>ping -a 172.31.0.2 172.16.0.1
+  PING 172.16.0.1: 56  data bytes, press CTRL_C to break
+    Reply from 172.16.0.1: bytes=56 Sequence=1 ttl=255 time=10 ms
+    Reply from 172.16.0.1: bytes=56 Sequence=2 ttl=255 time=4 ms
+    Reply from 172.16.0.1: bytes=56 Sequence=3 ttl=255 time=3 ms
+    Reply from 172.16.0.1: bytes=56 Sequence=4 ttl=255 time=7 ms
+    Reply from 172.16.0.1: bytes=56 Sequence=5 ttl=255 time=5 ms
+
+  --- 172.16.0.1 ping statistics ---
+    5 packet(s) transmitted
+    5 packet(s) received
+    0.00% packet loss
+    round-trip min/avg/max = 3/5/10 ms
+ 
+<SPINE2>ping -a 172.31.0.2 172.16.0.2
+  PING 172.16.0.2: 56  data bytes, press CTRL_C to break
+    Reply from 172.16.0.2: bytes=56 Sequence=1 ttl=255 time=5 ms
+    Reply from 172.16.0.2: bytes=56 Sequence=2 ttl=255 time=6 ms
+    Reply from 172.16.0.2: bytes=56 Sequence=3 ttl=255 time=2 ms
+    Reply from 172.16.0.2: bytes=56 Sequence=4 ttl=255 time=5 ms
+    Reply from 172.16.0.2: bytes=56 Sequence=5 ttl=255 time=14 ms
+
+  --- 172.16.0.2 ping statistics ---
+    5 packet(s) transmitted
+    5 packet(s) received
+    0.00% packet loss
+    round-trip min/avg/max = 2/6/14 ms
+ 
+<SPINE2>ping -a 172.31.0.2 172.16.0.3
+  PING 172.16.0.3: 56  data bytes, press CTRL_C to break
+    Reply from 172.16.0.3: bytes=56 Sequence=1 ttl=255 time=6 ms
+    Reply from 172.16.0.3: bytes=56 Sequence=2 ttl=255 time=3 ms
+    Reply from 172.16.0.3: bytes=56 Sequence=3 ttl=255 time=4 ms
+    Reply from 172.16.0.3: bytes=56 Sequence=4 ttl=255 time=5 ms
+    Reply from 172.16.0.3: bytes=56 Sequence=5 ttl=255 time=3 ms
+
+  --- 172.16.0.3 ping statistics ---
+    5 packet(s) transmitted
+    5 packet(s) received
+    0.00% packet loss
+    round-trip min/avg/max = 3/4/6 ms
+    
+```
