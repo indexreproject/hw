@@ -21,9 +21,10 @@ Underlay. ISIS
 Последовательная конфигурация коммутаторов (всё связанное с OSPF удалено):
 
 
-**LEAF1**
+**SPINE1**
 
 ```html
+
 isis 1
  is-level level-2
  network-entity 21.0000.0000.0011.00
@@ -64,9 +65,10 @@ interface GE1/0/5
 
 ```
 
-**LEAF2**
+**SPINE1**
 
 ```html
+
 isis 1
  is-level level-2
  network-entity 21.0000.0000.0012.00
@@ -110,35 +112,38 @@ interface GE1/0/6
 
 ```
 
-**LEAF3**
+**LEAF1**
 
 ```html
-interface GE1/0/5
+
+isis 1
+ is-level level-2
+ network-entity 22.0000.0000.0001.00
+#
+interface MEth0/0/0
+ undo shutdown
+#
+interface GE1/0/0
+ undo shutdown
+#
+interface GE1/0/1
  undo portswitch
  undo shutdown
- ip address 10.1.0.5 255.255.255.254
- ospf network-type p2p
- ospf enable 100 area 0.0.0.0
+ ip address 10.1.0.1 255.255.255.254
+ isis enable 1
+ isis circuit-type p2p
 #
-interface GE1/0/6
+interface GE1/0/2
  undo portswitch
  undo shutdown
- ip address 10.2.0.4 255.255.255.254
- ospf network-type p2p
- ospf enable 100 area 0.0.0.0
+ ip address 10.2.0.1 255.255.255.254
+ isis enable 1
+ isis circuit-type p2p
 #
-interface LoopBack1
- ip address 172.16.0.3 255.255.255.255
- ospf enable 100 area 0.0.0.0
-#
-interface NULL0
-#
-ospf 100 router-id 172.16.0.3
- area 0.0.0.0
-#
+
 ```
 
-**SPINE1**
+**LEAF2**
 
 ```html
 interface GE1/0/1
@@ -178,7 +183,7 @@ ospf 100 router-id 172.31.0.1
  area 0.0.0.0
 #
 ```
-**SPINE2**
+**LEAF3**
 
 ```html
 interface GE1/0/2
