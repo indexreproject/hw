@@ -473,4 +473,306 @@ isis 1
 
 ```
 
-После настройки процесса аутентификации на SPINE1, на нём же и подключённым LEAF3 пошли ошибки
+После настройки процесса аутентификации на SPINE1, на нём же и подключённым LEAF3 пошли ошибки:
+
+```html
+
+<LEAF3>
+Nov 26 2024 14:50:37 LEAF3 %%01ISIS/4/IS_RECV_ERR_PKT(l):CID=0x80860436;ISIS-INF
+O: Drop error packet. (PktType=L2 LSP, ProcessId=1, ErrReason=LSP Unknown Adjace
+ncy, ErrCount=1, InterfaceName=GE1/0/6)
+
+```
+
+```html
+
+Nov 26 2024 14:51:32 SPINE1 %%01ISIS/3/ISIS_AUTHENTICATION_TYPE_FAILURE(l):CID=0
+x80860436;The authentication type of received PDU is different from local config
+uration. (isisSysInstance=1, isisSysLevelIndex=2, isisCircIndex=3, isisCircIfInd
+ex=7, isisPduFragment=83.1B.01.06.14.01.00.03, ifIndex=7, IfName=GE1/0/5)
+
+Nov 26 2024 14:51:41 SPINE1 %%01ISIS/4/IS_RECV_ERR_PKT(l):CID=0x80860436;ISIS-IN
+FO: Drop error packet. (PktType=L2 LSP, ProcessId=1, ErrReason=LSP Bad Authentic
+ation, ErrCount=1114, InterfaceName=GE1/0/3)
+
+```
+
+Настрока продемонстрированна одним блоком на одном свитче, т.к. одинакова для всех.
+
+```html
+
+<LEAF1>dis curr conf isis
+#
+isis 1
+ is-level level-2
+ bfd all-interfaces enable
+ network-entity 49.0000.0000.0021.00
+ domain-authentication-mode md5 cipher %^%#8vDlI@%zTHX[4jH[160-y/9r=Ms>RAUCu;J4T
+5pS%^%# ip
+#
+return
+<LEAF1>
+
+```
+
+После применения конфигурации на всех свичах, и сброса всех процессов ISIS, ошибки аутентикиции не возникают:
+
+```html
+
+<SPINE1>
+<SPINE1>reset isis all
+Warning: The ISIS process(es) will be reset. Continue? [Y/N]:y
+<SPINE1>
+Nov 26 2024 15:15:42 SPINE1 %%01ISIS/2/ISIS_SEQUENCE_NUMBER_SKIP(l):CID=0x808604
+36;ISIS received a self-originated LSP with a greater sequence number. (isisSysI
+nstance=1, isisSysLevelIndex=2, isisCircIndex=1, isisCircIfIndex=3, isisPduLspId
+=00.00.00.00.00.11.00.00, ifIndex=3, IfName=GE1/0/1,oldSeqNum=2,newSeqNum=194)
+
+Nov 26 2024 15:16:07 SPINE1 %%01BFD/4/STACHG_TOUP(l):CID=0x8074040f;BFD session 
+changed to Up. (SlotNumber=1, Discriminator=16392, FormerStatus=Down, Applicatio
+ns=ISIS, BindInterfaceName=GE1/0/1, ProcessPST=False, TunnelName=-)
+
+Nov 26 2024 15:16:06 SPINE1 %%01BFD/4/hwBfdSessUp(l):CID=0x8074040f;Session chan
+ges to UP. (Index=16392, ConfigurationName=-, PeerIp=10.1.0.1, BindIfIndex=3, Bi
+ndIfName=GE1/0/1, Diagnosis=0, BindVrfIndex=0, BindVpnName=_public_, SessionType
+=2, DefaultIp=1, BindType=4, StaticLspName=-, PwSecondary=3, NextHop=0.0.0.0, Vc
+Id=0, VsiName=-, VsiPeerAddress=0.0.0.0, DiscrAuto=2, PeerIpv6=::, Ipv6NextHop=:
+:)
+
+Nov 26 2024 15:16:06 SPINE1 %%01BFD/4/hwBfdSessUp(t):CID=0x8074040f-OID=1.3.6.1.
+4.1.2011.5.25.38.3.2;Session changes to UP. (Index=16392, ConfigurationName=-, P
+eerIp=10.1.0.1, BindIfIndex=3, BindIfName=GE1/0/1, Diagnosis=0, BindVrfIndex=0, 
+BindVpnName=_public_, SessionType=2, DefaultIp=1, BindType=4, StaticLspName=-, P
+wSecondary=3, NextHop=0.0.0.0, VcId=0, VsiName=-, VsiPeerAddress=0.0.0.0, DiscrA
+uto=2, PeerIpv6=::, Ipv6NextHop=::)
+
+<SPINE1>dis clo
+2024-11-26 15:20:21
+Tuesday
+Time Zone(DefaultZoneName) : UTC
+<SPINE1>
+
+```
+
+Еще есть  более подробный вывод, где есть данные об аутентификации, начинающиеся со строчки Auth:
+
+*SPINE1*
+
+```html
+
+<SPINE1>dis isis lsdb verbose 
+
+Database Information for ISIS(1)
+--------------------------------------------------------------------------------
+                          
+                          
+Level-2 Link State Database
+
+*(In TLV)-Leaking Route, *(By LSPID)-Self LSP, +-Self LSP(Extended),
+           ATT-Attached, P-Partition, OL-Overload
+
+LSPID                 Seq Num      Checksum      HoldTime(s)    Length ATT/P/OL
+--------------------------------------------------------------------------------
+0000.0000.0011.00-00*  0x000000c4   0x1e8b               879       141 0/0/0   
+ SOURCE       0000.0000.0011.00 
+ Auth: *****     Len: 16     Type: MD5
+ NLPID        IPV4
+ AREA ADDR    49
+ INTF ADDR    10.1.0.0
+ INTF ADDR    10.1.0.2
+ INTF ADDR    10.1.0.4
+ NBR  ID      0000.0000.0011.01  COST: 5
+ NBR  ID      0000.0000.0011.02  COST: 10
+ NBR  ID      0000.0000.0011.03  COST: 10
+ IP-Internal  10.1.0.0        255.255.255.254  COST: 5
+ IP-Internal  10.1.0.2        255.255.255.254  COST: 10
+ IP-Internal  10.1.0.4        255.255.255.254  COST: 10
+
+0000.0000.0011.01-00*  0x00000018   0x3ebc               873        74 0/0/0   
+ SOURCE       0000.0000.0011.01 
+ Auth: *****     Len: 16     Type: MD5
+ NLPID        IPV4
+ NBR  ID      0000.0000.0011.00  COST: 0
+ NBR  ID      0000.0000.0021.00  COST: 0
+
+0000.0000.0011.02-00*  0x00000026   0x8cd5               873        74 0/0/0   
+ SOURCE       0000.0000.0011.02 
+ Auth: *****     Len: 16     Type: MD5
+ NLPID        IPV4
+ NBR  ID      0000.0000.0011.00  COST: 0
+ NBR  ID      0000.0000.0022.00  COST: 0
+
+0000.0000.0011.03-00*  0x0000002d   0x96bf               873        74 0/0/0   
+ SOURCE       0000.0000.0011.03 
+ Auth: *****     Len: 16     Type: MD5
+ NLPID        IPV4
+ NBR  ID      0000.0000.0011.00  COST: 0
+ NBR  ID      0000.0000.0023.00  COST: 0
+
+0000.0000.0012.00-00   0x00000095   0xd65d               871       141 0/0/0   
+ SOURCE       0000.0000.0012.00 
+ Auth: *****     Len: 16     Type: MD5
+ NLPID        IPV4
+ AREA ADDR    49
+ INTF ADDR    10.2.0.0
+ INTF ADDR    10.2.0.3
+ INTF ADDR    10.2.0.5
+ NBR  ID      0000.0000.0021.00  COST: 10
+ NBR  ID      0000.0000.0023.00  COST: 10
+ NBR  ID      0000.0000.0022.00  COST: 10
+ IP-Internal  10.2.0.0        255.255.255.254  COST: 10
+ IP-Internal  10.2.0.2        255.255.255.254  COST: 10
+ IP-Internal  10.2.0.4        255.255.255.254  COST: 10
+
+0000.0000.0021.00-00   0x00000070   0x25ce               853       114 0/0/0   
+ SOURCE       0000.0000.0021.00 
+ Auth: *****     Len: 16     Type: MD5
+ NLPID        IPV4
+ AREA ADDR    49
+ INTF ADDR    10.1.0.1
+ INTF ADDR    10.2.0.1
+ NBR  ID      0000.0000.0012.00  COST: 10
+ NBR  ID      0000.0000.0011.01  COST: 5
+ IP-Internal  10.1.0.0        255.255.255.254  COST: 5
+ IP-Internal  10.2.0.0        255.255.255.254  COST: 10
+
+0000.0000.0022.00-00   0x00000085   0xab76               852       114 0/0/0   
+ SOURCE       0000.0000.0022.00 
+ Auth: *****     Len: 16     Type: MD5
+ NLPID        IPV4
+ AREA ADDR    49
+ INTF ADDR    10.1.0.3
+ INTF ADDR    10.2.0.2
+ NBR  ID      0000.0000.0012.00  COST: 10
+ NBR  ID      0000.0000.0011.02  COST: 10
+ IP-Internal  10.1.0.2        255.255.255.254  COST: 10
+ IP-Internal  10.2.0.2        255.255.255.254  COST: 10
+
+0000.0000.0023.00-00   0x0000003e   0x21db               851       114 0/0/0   
+ SOURCE       0000.0000.0023.00 
+ Auth: *****     Len: 16     Type: MD5
+ NLPID        IPV4
+ AREA ADDR    49
+ INTF ADDR    10.1.0.5
+ INTF ADDR    10.2.0.4
+ NBR  ID      0000.0000.0012.00  COST: 10
+ NBR  ID      0000.0000.0011.03  COST: 10
+ IP-Internal  10.1.0.4        255.255.255.254  COST: 10
+ IP-Internal  10.2.0.4        255.255.255.254  COST: 10
+
+Total LSP(s): 8
+
+<SPINE1>
+
+```
+
+*SPINE2*
+
+```html
+
+<SPINE2>dis isis lsdb verbose 
+
+Database Information for ISIS(1)
+--------------------------------------------------------------------------------
+                          
+                          
+Level-2 Link State Database
+
+*(In TLV)-Leaking Route, *(By LSPID)-Self LSP, +-Self LSP(Extended),
+           ATT-Attached, P-Partition, OL-Overload
+
+LSPID                 Seq Num      Checksum      HoldTime(s)    Length ATT/P/OL
+--------------------------------------------------------------------------------
+0000.0000.0011.00-00   0x000000c4   0x1e8b               621       141 0/0/0   
+ SOURCE       0000.0000.0011.00 
+ Auth: *****     Len: 16     Type: MD5
+ NLPID        IPV4
+ AREA ADDR    49
+ INTF ADDR    10.1.0.0
+ INTF ADDR    10.1.0.2
+ INTF ADDR    10.1.0.4
+ NBR  ID      0000.0000.0011.01  COST: 5
+ NBR  ID      0000.0000.0011.02  COST: 10
+ NBR  ID      0000.0000.0011.03  COST: 10
+ IP-Internal  10.1.0.0        255.255.255.254  COST: 5
+ IP-Internal  10.1.0.2        255.255.255.254  COST: 10
+ IP-Internal  10.1.0.4        255.255.255.254  COST: 10
+
+0000.0000.0011.01-00   0x00000018   0x3ebc               621        74 0/0/0   
+ SOURCE       0000.0000.0011.01 
+ Auth: *****     Len: 16     Type: MD5
+ NLPID        IPV4
+ NBR  ID      0000.0000.0011.00  COST: 0
+ NBR  ID      0000.0000.0021.00  COST: 0
+
+0000.0000.0011.02-00   0x00000026   0x8cd5               621        74 0/0/0   
+ SOURCE       0000.0000.0011.02 
+ Auth: *****     Len: 16     Type: MD5
+ NLPID        IPV4
+ NBR  ID      0000.0000.0011.00  COST: 0
+ NBR  ID      0000.0000.0022.00  COST: 0
+
+0000.0000.0011.03-00   0x0000002d   0x96bf               621        74 0/0/0   
+ SOURCE       0000.0000.0011.03 
+ Auth: *****     Len: 16     Type: MD5
+ NLPID        IPV4
+ NBR  ID      0000.0000.0011.00  COST: 0
+ NBR  ID      0000.0000.0023.00  COST: 0
+
+0000.0000.0012.00-00*  0x00000095   0xd65d               343       141 0/0/0   
+ SOURCE       0000.0000.0012.00 
+ Auth: *****     Len: 16     Type: MD5
+ NLPID        IPV4
+ AREA ADDR    49
+ INTF ADDR    10.2.0.0
+ INTF ADDR    10.2.0.3
+ INTF ADDR    10.2.0.5
+ NBR  ID      0000.0000.0021.00  COST: 10
+ NBR  ID      0000.0000.0023.00  COST: 10
+ NBR  ID      0000.0000.0022.00  COST: 10
+ IP-Internal  10.2.0.0        255.255.255.254  COST: 10
+ IP-Internal  10.2.0.2        255.255.255.254  COST: 10
+ IP-Internal  10.2.0.4        255.255.255.254  COST: 10
+
+0000.0000.0021.00-00   0x00000071   0x1db7              1168       114 0/0/0   
+ SOURCE       0000.0000.0021.00 
+ Auth: *****     Len: 16     Type: MD5
+ NLPID        IPV4
+ AREA ADDR    49
+ INTF ADDR    10.1.0.1
+ INTF ADDR    10.2.0.1
+ NBR  ID      0000.0000.0012.00  COST: 10
+ NBR  ID      0000.0000.0011.01  COST: 5
+ IP-Internal  10.1.0.0        255.255.255.254  COST: 5
+ IP-Internal  10.2.0.0        255.255.255.254  COST: 10
+
+0000.0000.0022.00-00   0x00000086   0xd7c9              1156       114 0/0/0   
+ SOURCE       0000.0000.0022.00 
+ Auth: *****     Len: 16     Type: MD5
+ NLPID        IPV4
+ AREA ADDR    49
+ INTF ADDR    10.1.0.3
+ INTF ADDR    10.2.0.2
+ NBR  ID      0000.0000.0012.00  COST: 10
+ NBR  ID      0000.0000.0011.02  COST: 10
+ IP-Internal  10.1.0.2        255.255.255.254  COST: 10
+ IP-Internal  10.2.0.2        255.255.255.254  COST: 10
+
+0000.0000.0023.00-00   0x0000003f   0x5534              1133       114 0/0/0   
+ SOURCE       0000.0000.0023.00 
+ Auth: *****     Len: 16     Type: MD5
+ NLPID        IPV4
+ AREA ADDR    49
+ INTF ADDR    10.1.0.5
+ INTF ADDR    10.2.0.4
+ NBR  ID      0000.0000.0012.00  COST: 10
+ NBR  ID      0000.0000.0011.03  COST: 10
+ IP-Internal  10.1.0.4        255.255.255.254  COST: 10
+ IP-Internal  10.2.0.4        255.255.255.254  COST: 10
+
+Total LSP(s): 8
+
+<SPINE2>
+
+```
+
