@@ -27,7 +27,7 @@ Underlay. ISIS
 
 isis 1
  is-level level-2
- network-entity 21.0000.0000.0011.00
+ network-entity 49.0000.0000.0011.00
 #
 interface MEth0/0/0
  undo shutdown
@@ -40,7 +40,7 @@ interface GE1/0/1
  undo shutdown
  ip address 10.1.0.0 255.255.255.254
  isis enable 1
- isis circuit-type p2p
+ isis dis-priority 110
 #
 interface GE1/0/2
  shutdown
@@ -50,7 +50,7 @@ interface GE1/0/3
  undo shutdown
  ip address 10.1.0.2 255.255.255.254
  isis enable 1
- isis circuit-type p2p
+ isis dis-priority 100
 #
 interface GE1/0/4
  shutdown
@@ -60,7 +60,7 @@ interface GE1/0/5
  undo shutdown
  ip address 10.1.0.4 255.255.255.254
  isis enable 1
- isis circuit-type p2p
+ isis dis-priority 100
 #
 
 ```
@@ -71,7 +71,7 @@ interface GE1/0/5
 
 isis 1
  is-level level-2
- network-entity 21.0000.0000.0012.00
+ network-entity 49.0000.0000.0012.00
 #
 interface MEth0/0/0
  undo shutdown
@@ -118,7 +118,7 @@ interface GE1/0/6
 
 isis 1
  is-level level-2
- network-entity 22.0000.0000.0001.00
+ network-entity 49.0000.0000.0001.00
 #
 interface MEth0/0/0
  undo shutdown
@@ -131,7 +131,7 @@ interface GE1/0/1
  undo shutdown
  ip address 10.1.0.1 255.255.255.254
  isis enable 1
- isis circuit-type p2p
+ isis dis-priority 100
 #
 interface GE1/0/2
  undo portswitch
@@ -146,12 +146,19 @@ interface GE1/0/2
 **LEAF2**
 
 ```html
-interface GE1/0/1
- undo portswitch
+
+isis 1
+ is-level level-2
+ network-entity 49.0000.0000.0022.00
+#
+interface MEth0/0/0
  undo shutdown
- ip address 10.1.0.0 255.255.255.254
- ospf network-type p2p
- ospf enable 100 area 0.0.0.0
+#
+interface GE1/0/0
+ shutdown
+#
+interface GE1/0/1
+ shutdown
 #
 interface GE1/0/2
  shutdown
@@ -159,67 +166,94 @@ interface GE1/0/2
 interface GE1/0/3
  undo portswitch
  undo shutdown
- ip address 10.1.0.2 255.255.255.254
- ospf network-type p2p
- ospf enable 100 area 0.0.0.0
+ ip address 10.1.0.3 255.255.255.254
+ isis enable 1
+ isis dis-priority 90
 #
 interface GE1/0/4
- shutdown
-#
-interface GE1/0/5
  undo portswitch
  undo shutdown
- ip address 10.1.0.4 255.255.255.254
- ospf network-type p2p
- ospf enable 100 area 0.0.0.0
+ ip address 10.2.0.2 255.255.255.254
+ isis enable 1
+ isis circuit-type p2p
 #
-interface LoopBack1
- ip address 172.31.0.1 255.255.255.255
- ospf enable 100 area 0.0.0.0
-#
-interface NULL0
-#
-ospf 100 router-id 172.31.0.1
- area 0.0.0.0
-#
+
 ```
 **LEAF3**
 
 ```html
-interface GE1/0/2
- undo portswitch
+
+isis 1
+ network-entity 49.0000.0000.0023.00
+#
+interface MEth0/0/0
  undo shutdown
- ip address 10.2.0.0 255.255.255.254
- ospf network-type p2p
- ospf enable 100 area 0.0.0.0
+#
+interface GE1/0/0
+ shutdown
+#
+interface GE1/0/1
+ shutdown
+#
+interface GE1/0/2
+ shutdown
 #
 interface GE1/0/3
  shutdown
 #
 interface GE1/0/4
- undo portswitch
- undo shutdown
- ip address 10.2.0.3 255.255.255.254
- ospf network-type p2p
- ospf enable 100 area 0.0.0.0
+ shutdown
 #
 interface GE1/0/5
- shutdown
+ undo portswitch
+ undo shutdown
+ ip address 10.1.0.5 255.255.255.254
+ isis enable 1
+ isis dis-priority 90
 #
 interface GE1/0/6
  undo portswitch
  undo shutdown
- ip address 10.2.0.5 255.255.255.254
- ospf network-type p2p
- ospf enable 100 area 0.0.0.0
+ ip address 10.2.0.4 255.255.255.254
+ isis enable 1
+ isis circuit-type p2p
 #
-interface LoopBack1
- ip address 172.31.0.2 255.255.255.255
- ospf enable 100 area 0.0.0.0
-#
-interface NULL0
-#
-ospf 100 router-id 172.31.0.2
- area 0.0.0.0
-#
+
 ```
+
+Соседство установлено
+
+```html
+<SPINE1>dis isis peer
+
+Peer Information for ISIS(1)
+--------------------------------------------------------------------------------
+
+  System ID     Interface       Circuit ID        State HoldTime(s) Type     PRI
+--------------------------------------------------------------------------------
+0000.0000.0021  GE1/0/1         0000.0000.0011.01  Up            26 L2       100
+0000.0000.0022  GE1/0/3         0000.0000.0011.02  Up            27 L2        90
+0000.0000.0023  GE1/0/5         0000.0000.0011.03  Up            28 L2        90
+
+Total Peer(s): 3
+```
+
+```html
+<SPINE2> dis isis peer
+
+Peer Information for ISIS(1)
+--------------------------------------------------------------------------------
+
+  System ID     Interface       Circuit ID        State HoldTime(s) Type     PRI
+--------------------------------------------------------------------------------
+0000.0000.0021  GE1/0/2         0000000007         Up            30 L2        --
+0000.0000.0022  GE1/0/4         0000000006         Up            24 L2        --
+0000.0000.0023  GE1/0/6         0000000008         Up            24 L2        --
+
+Total Peer(s): 3
+```
+
+
+Статус интерфейсов на SPINE'ах:
+
+
