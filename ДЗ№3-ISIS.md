@@ -293,6 +293,37 @@ Interface Information for ISIS(1)
 
 ```html
 
+[~SPINE1]ping -a 10.1.0.0 10.2.0.2
+  PING 10.2.0.2: 56  data bytes, press CTRL_C to break
+    Reply from 10.2.0.2: bytes=56 Sequence=1 ttl=255 time=9 ms
+    Reply from 10.2.0.2: bytes=56 Sequence=2 ttl=255 time=4 ms
+    Reply from 10.2.0.2: bytes=56 Sequence=3 ttl=255 time=3 ms
+    Reply from 10.2.0.2: bytes=56 Sequence=4 ttl=255 time=7 ms
+    Reply from 10.2.0.2: bytes=56 Sequence=5 ttl=255 time=6 ms
+
+  --- 10.2.0.2 ping statistics ---
+    5 packet(s) transmitted
+    5 packet(s) received
+    0.00% packet loss
+    round-trip min/avg/max = 3/5/9 ms
+
+```
+
+```html
+
+<SPINE2>ping -a 10.2.0.3 10.1.0.0
+  PING 10.1.0.0: 56  data bytes, press CTRL_C to break
+    Reply from 10.1.0.0: bytes=56 Sequence=1 ttl=254 time=14 ms
+    Reply from 10.1.0.0: bytes=56 Sequence=2 ttl=254 time=12 ms
+    Reply from 10.1.0.0: bytes=56 Sequence=3 ttl=254 time=8 ms
+    Reply from 10.1.0.0: bytes=56 Sequence=4 ttl=254 time=12 ms
+    Reply from 10.1.0.0: bytes=56 Sequence=5 ttl=254 time=14 ms
+
+  --- 10.1.0.0 ping statistics ---
+    5 packet(s) transmitted
+    5 packet(s) received
+    0.00% packet loss
+    round-trip min/avg/max = 8/12/14 ms
 
 
 ```
