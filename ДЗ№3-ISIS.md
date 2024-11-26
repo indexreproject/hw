@@ -328,7 +328,7 @@ Interface Information for ISIS(1)
 
 ```
 
-Настроим BFD.
+Настроим динамический BFD.
 
 **SPINE1**
 
