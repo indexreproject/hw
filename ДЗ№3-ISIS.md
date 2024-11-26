@@ -209,7 +209,6 @@ interface GE1/0/5
  undo shutdown
  ip address 10.1.0.5 255.255.255.254
  isis enable 1
- isis dis-priority 90
 #
 interface GE1/0/6
  undo portswitch
@@ -233,7 +232,7 @@ Peer Information for ISIS(1)
 --------------------------------------------------------------------------------
 0000.0000.0021  GE1/0/1         0000.0000.0011.01  Up            26 L2       100
 0000.0000.0022  GE1/0/3         0000.0000.0011.02  Up            27 L2        90
-0000.0000.0023  GE1/0/5         0000.0000.0011.03  Up            28 L2        90
+0000.0000.0023  GE1/0/5         0000.0000.0011.03  Up            28 L2        64
 
 Total Peer(s): 3
 ```
@@ -256,4 +255,31 @@ Total Peer(s): 3
 
 Статус интерфейсов на SPINE'ах:
 
+```html
+<SPINE1>dis isis int
 
+Interface Information for ISIS(1)
+--------------------------------------------------------------------------------
+ Interface         ID      IPV4 State          IPV6 State      MTU  Type  DIS
+ GE1/0/1           001         Up          Mtu:Dn/Lnk:Dn/IP:Dn 1497 L1/L2 No/Yes
+ GE1/0/3           002         Up          Mtu:Dn/Lnk:Dn/IP:Dn 1497 L1/L2 No/Yes
+ GE1/0/5           003         Up          Mtu:Dn/Lnk:Dn/IP:Dn 1497 L1/L2 No/Yes
+```
+
+```html
+
+<SPINE2> dis isis int 
+
+Interface Information for ISIS(1)
+--------------------------------------------------------------------------------
+ Interface         ID      IPV4 State          IPV6 State      MTU  Type  DIS
+ GE1/0/2           005         Up          Mtu:Dn/Lnk:Dn/IP:Dn 1497 L1/L2 --
+ GE1/0/4           007         Up          Mtu:Dn/Lnk:Dn/IP:Dn 1497 L1/L2 --
+ GE1/0/6           009         Up          Mtu:Dn/Lnk:Dn/IP:Dn 1497 L1/L2 --
+
+
+```
+
+Тут требуется пояснение, того, что было сконфигурированно.
+Насколько я понял DIS дожен быть один в домене ISIS. Все коммутаторы - L2, так сделано, чтобы упростить схему и настройку.
+На SPINE1 задал приоритет 3 трёх нисходящих интерфейсов выше, чем они стоят по умолчанию(64), чтобы стать DIS, а для остальных коммутаторов установил p2p.
