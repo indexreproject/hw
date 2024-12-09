@@ -274,3 +274,293 @@ Address family IPv4 Unicast: advertised and received
 
 
 ```
+
+*Таблицы маршрутизации*
+
+```html
+
+<SPINE1>dis bgp routing-table 
+ BGP Local router ID is 172.31.0.1
+ Status codes: * - valid, > - best, d - damped, h - history,
+               i - internal, s - suppressed, S - Stale
+ Origin      : i - IGP, e - EGP, ? - incomplete
+
+
+ Total Number of Routes: 11 
+        Network            NextHop                       MED        LocPrf    Pr
+efVal Path/Ogn
+ *>     10.1.0.0/31        0.0.0.0                        0                     
+0       i
+   i                       10.1.0.1                       0          100        
+0       i
+ *>     10.1.0.2/31        0.0.0.0                        0                     
+0       i
+   i                       10.1.0.3                       0          100        
+0       i
+ *>     10.1.0.4/31        0.0.0.0                        0                     
+0       i
+   i                       10.1.0.5                       0          100        
+0       i
+ *>i    10.2.0.0/31        10.1.0.1                       0          100        
+0       i
+ *>i    10.2.0.2/31        10.1.0.3                       0          100        
+0       i
+ *>i    10.102.1.0/24      10.1.0.1                       0          100        
+0       i
+ *>i    10.102.2.0/24      10.1.0.3                       0          100        
+0       i
+ *>i    10.102.3.0/24      10.1.0.5                       0          100        
+0       i
+
+
+<SPINE2>dis bgp routing-table 
+ BGP Local router ID is 172.31.0.2
+ Status codes: * - valid, > - best, d - damped, h - history,
+               i - internal, s - suppressed, S - Stale
+ Origin      : i - IGP, e - EGP, ? - incomplete
+
+
+ Total Number of Routes: 11 
+        Network            NextHop                       MED        LocPrf    Pr
+efVal Path/Ogn
+ *>i    10.1.0.0/31        10.2.0.1                       0          100        
+0       i
+ *>i    10.1.0.2/31        10.2.0.2                       0          100        
+0       i
+ *>i    10.1.0.4/31        10.2.0.4                       0          100        
+0       i
+ *>     10.2.0.0/31        0.0.0.0                        0                     
+0       i
+   i                       10.2.0.1                       0          100        
+0       i
+ *>     10.2.0.2/31        0.0.0.0                        0                     
+0       i
+   i                       10.2.0.2                       0          100        
+0       i
+ *>     10.2.0.4/31        0.0.0.0                        0                     
+0       i
+ *>i    10.102.1.0/24      10.2.0.1                       0          100        
+0       i
+ *>i    10.102.2.0/24      10.2.0.2                       0          100        
+0       i
+ *>i    10.102.3.0/24      10.2.0.4                       0          100        
+0       i
+
+
+<LEAF1>dis bgp routing-table
+ BGP Local router ID is 172.16.0.2
+ Status codes: * - valid, > - best, d - damped, h - history,
+               i - internal, s - suppressed, S - Stale
+ Origin      : i - IGP, e - EGP, ? - incomplete
+
+
+ Total Number of Routes: 16
+        Network            NextHop                       MED        LocPrf    Pr
+efVal Path/Ogn
+ *>     10.1.0.0/31        0.0.0.0                        0                     
+0       i
+   i                       10.1.0.0                       0          100        
+0       i
+ *>i    10.1.0.2/31        10.1.0.0                       0          100        
+0       i
+ * i                       10.2.0.2                       0          100        
+0       i
+ *>i    10.1.0.4/31        10.1.0.0                       0          100        
+0       i
+ * i                       10.2.0.4                       0          100        
+0       i
+ *>     10.2.0.0/31        0.0.0.0                        0                     
+0       i
+   i                       10.2.0.0                       0          100        
+0       i
+ *>i    10.2.0.2/31        10.2.0.0                       0          100        
+0       i
+ * i                       10.1.0.3                       0          100        
+0       i
+ *>i    10.2.0.4/31        10.2.0.0                       0          100        
+0       i
+ *>     10.102.1.0/24      0.0.0.0                        0                     
+0       i
+ *>i    10.102.2.0/24      10.1.0.3                       0          100        
+0       i
+ * i                       10.2.0.2                       0          100        
+0       i
+ *>i    10.102.3.0/24      10.1.0.5                       0          100        
+0       i
+ * i                       10.2.0.4                       0          100        
+0       i
+
+
+<LEAF2>dis bgp routing-table 
+ BGP Local router ID is 172.16.0.1
+ Status codes: * - valid, > - best, d - damped, h - history,
+               i - internal, s - suppressed, S - Stale
+ Origin      : i - IGP, e - EGP, ? - incomplete
+
+
+ Total Number of Routes: 16 
+        Network            NextHop                       MED        LocPrf    Pr
+efVal Path/Ogn
+ *>i    10.1.0.0/31        10.1.0.2                       0          100        
+0       i
+ * i                       10.2.0.1                       0          100        
+0       i
+ *>     10.1.0.2/31        0.0.0.0                        0                     
+0       i
+   i                       10.1.0.2                       0          100        
+0       i
+ *>i    10.1.0.4/31        10.1.0.2                       0          100        
+0       i
+ * i                       10.2.0.4                       0          100        
+0       i
+ *>i    10.2.0.0/31        10.2.0.3                       0          100        
+0       i
+ * i                       10.1.0.1                       0          100        
+0       i
+ *>     10.2.0.2/31        0.0.0.0                        0                     
+0       i
+   i                       10.2.0.3                       0          100        
+0       i
+ *>i    10.2.0.4/31        10.2.0.3                       0          100        
+0       i
+ *>i    10.102.1.0/24      10.1.0.1                       0          100        
+0       i
+ * i                       10.2.0.1                       0          100        
+0       i
+ *>     10.102.2.0/24      0.0.0.0                        0                     
+0       i
+ *>i    10.102.3.0/24      10.1.0.5                       0          100        
+0       i
+ * i                       10.2.0.4                       0          100        
+0       i
+
+
+<LEAF3>dis bgp routing-table 
+ BGP Local router ID is 172.16.0.3
+ Status codes: * - valid, > - best, d - damped, h - history,
+               i - internal, s - suppressed, S - Stale
+ Origin      : i - IGP, e - EGP, ? - incomplete
+
+
+ Total Number of Routes: 16 
+        Network            NextHop                       MED        LocPrf    Pr
+efVal Path/Ogn
+ *>i    10.1.0.0/31        10.1.0.4                       0          100        
+0       i
+ * i                       10.2.0.1                       0          100        
+0       i
+ *>i    10.1.0.2/31        10.1.0.4                       0          100        
+0       i
+ * i                       10.2.0.2                       0          100        
+0       i
+ *>     10.1.0.4/31        0.0.0.0                        0                     
+0       i
+   i                       10.1.0.4                       0          100        
+0       i
+ *>i    10.2.0.0/31        10.2.0.5                       0          100        
+0       i
+ * i                       10.1.0.1                       0          100        
+0       i
+ *>i    10.2.0.2/31        10.2.0.5                       0          100        
+0       i
+ * i                       10.1.0.3                       0          100        
+0       i
+   i    10.2.0.4/31        10.2.0.5                       0          100        
+0       i
+ *>i    10.102.1.0/24      10.1.0.1                       0          100        
+0       i
+ * i                       10.2.0.1                       0          100        
+0       i
+ *>i    10.102.2.0/24      10.1.0.3                       0          100        
+0       i
+ * i                       10.2.0.2                       0          100        
+0       i
+ *>     10.102.3.0/24      0.0.0.0                        0                     
+0       i
+
+
+```
+
+*Пиры*
+
+```html
+
+<SPINE1>dis bgp peer
+ BGP local router ID        : 172.31.0.1
+ Local AS number            : 65001
+ Total number of peers      : 3                
+ Peers in established state : 3
+
+  Peer            V          AS  MsgRcvd  MsgSent  OutQ  Up/Down       State  Pr
+efRcv
+  10.1.0.1        4       65001     1255     1261     0 18:06:00 Established    
+    3
+  10.1.0.3        4       65001     1253     1265     0 18:12:31 Established    
+    3
+  10.1.0.5        4       65001     1250     1269     0 18:12:31 Established    
+    2
+
+
+<SPINE2>dis bgp peer
+ BGP local router ID        : 172.31.0.2
+ Local AS number            : 65001
+ Total number of peers      : 3                
+ Peers in established state : 3
+
+  Peer            V          AS  MsgRcvd  MsgSent  OutQ  Up/Down       State  Pr
+efRcv
+  10.2.0.1        4       65001       86       91     0 01:10:57 Established    
+    3
+  10.2.0.2        4       65001      123      141     0 01:42:46 Established    
+    3
+  10.2.0.4        4       65001      120      137     0 01:41:08 Established    
+    2
+
+
+<LEAF1>dis bgp peer
+ BGP local router ID        : 172.16.0.2
+ Local AS number            : 65001
+ Total number of peers      : 2
+ Peers in established state : 2
+
+  Peer            V          AS  MsgRcvd  MsgSent  OutQ  Up/Down       State  Pr
+efRcv
+  10.1.0.0        4       65001     1257     1266     0 18:06:36 Established    
+    6
+  10.2.0.0        4       65001       92       87     0 01:11:13 Established    
+    7
+
+
+
+<LEAF2>dis bgp peer
+ BGP local router ID        : 172.16.0.1
+ Local AS number            : 65001
+ Total number of peers      : 2                
+ Peers in established state : 2
+
+  Peer            V          AS  MsgRcvd  MsgSent  OutQ  Up/Down       State  Pr
+efRcv
+  10.1.0.2        4       65001     1266     1258     0 18:13:22 Established    
+    6
+  10.2.0.3        4       65001      140      123     0 01:43:17 Established    
+    7
+
+
+
+<LEAF3>dis bgp peer
+ BGP local router ID        : 172.16.0.3
+ Local AS number            : 65001
+ Total number of peers      : 2                
+ Peers in established state : 2
+
+  Peer            V          AS  MsgRcvd  MsgSent  OutQ  Up/Down       State  Pr
+efRcv
+  10.1.0.4        4       65001     1270     1289     0 18:13:41 Established    
+    7
+  10.2.0.5        4       65001      137      121     0 01:41:58 Established    
+    7
+
+
+
+
+```
