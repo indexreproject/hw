@@ -170,6 +170,74 @@ bgp 65001
 
 Для LEAF'ов указал RR, а также сделал Loopback'и с номером 0, чтобы их анонсировать друг други, а затем проверить их доступность.
 
+*Аутентификация*
+
+Довольно простая:
+
+```html
+bgp 65001
+ router-id 172.16.0.2
+ peer 10.1.0.0 as-number 65001
+ peer 10.1.0.0 password cipher %^%#xKg$;"G8_3csXR9Y76EKK8OyIM22wJ^3I(8++awQ%^%#
+
+bgp 65001
+ router-id 172.31.0.1
+ peer 10.1.0.1 as-number 65001
+ peer 10.1.0.1 password cipher %^%#Z[WX,tlRuHl{^y~lg::3w'_Z8'E6vRHAhZ3JkK'(%^%#
+
+
+<LEAF1>dis bgp peer 10.1.0.0 ver
+ Address family IPv4 Unicast: advertised and received
+ Received:
+                  Total  messages                1236
+                  Update messages                7
+                  Open messages                  1
+                  KeepAlive messages             1228
+                  Notification messages          0
+                  Refresh messages               0
+ Sent    :
+                  Total  messages                1245
+                  Update messages                4
+                  Open messages                  12
+                  KeepAlive messages             1229
+                  Notification messages          0
+                  Refresh messages               0
+ Authentication type configured: MD5
+  Last keepalive received: 2024-12-09 15:15:22+00:00
+  Last keepalive sent    : 2024-12-09 15:14:48+00:00
+  Last update received   : 2024-12-09 14:05:52+00:00
+  Last update sent       : 2024-12-09 14:05:00+00:00
+
+
+
+<SPINE1>dis bgp peer 10.1.0.1 verbose 
+Address family IPv4 Unicast: advertised and received
+ Received: 
+                  Total  messages                1247
+                  Update messages                4
+                  Open messages                  1
+                  KeepAlive messages             1242
+                  Notification messages          0
+                  Refresh messages               0
+ Sent    : 
+                  Total  messages                1254
+                  Update messages                7
+                  Open messages                  6
+                  KeepAlive messages             1241
+                  Notification messages          0
+                  Refresh messages               0
+ Authentication type configured: MD5
+  Last keepalive received: 2024-12-09 15:25:59+00:00
+  Last keepalive sent    : 2024-12-09 15:26:29+00:00
+  Last update received   : 2024-12-09 14:05:00+00:00
+  Last update sent       : 2024-12-09 14:05:52+00:00
+
+
+
+
+```
+
+
 *ПРОВЕРКА*
 
 Пингуем Loopback0 (10.102.1.1) на LEAF1 от LEAF3
