@@ -87,6 +87,7 @@ bgp 65001
 ```
 
 Как и написанно выше SPINE 1/2 выступают в роли RR, для этого нужно указать номер кластрера и непосредственно клиентов.
+На Huawei есть возможность объединить клиентов RR в группу, но у меня не получилось состояния establashed при такой настройке. 
 
 LEAF1
 
@@ -168,3 +169,40 @@ bgp 65001
 
 
 Для LEAF'ов указал RR, а также сделал Loopback'и с номером 0, чтобы их анонсировать друг други, а затем проверить их доступность.
+
+*ПРОВЕРКА*
+
+Пингуем Loopback0 (10.102.1.1) на LEAF1 от LEAF3
+
+```html
+
+<LEAF3>ping -i lo0 10.102.1.1
+  PING 10.102.1.1: 56  data bytes, press CTRL_C to break
+    Reply from 10.102.1.1: bytes=56 Sequence=1 ttl=254 time=8 ms
+    Reply from 10.102.1.1: bytes=56 Sequence=2 ttl=254 time=11 ms
+    Reply from 10.102.1.1: bytes=56 Sequence=3 ttl=254 time=10 ms
+    Reply from 10.102.1.1: bytes=56 Sequence=4 ttl=254 time=6 ms
+    Reply from 10.102.1.1: bytes=56 Sequence=5 ttl=254 time=5 ms
+
+  --- 10.102.1.1 ping statistics ---
+    5 packet(s) transmitted
+    5 packet(s) received
+    0.00% packet loss
+    round-trip min/avg/max = 5/8/11 ms
+
+<LEAF3>ping -a 10.102.3.1 10.102.1.1
+  PING 10.102.1.1: 56  data bytes, press CTRL_C to break
+    Reply from 10.102.1.1: bytes=56 Sequence=1 ttl=254 time=9 ms
+    Reply from 10.102.1.1: bytes=56 Sequence=2 ttl=254 time=9 ms
+    Reply from 10.102.1.1: bytes=56 Sequence=3 ttl=254 time=10 ms
+    Reply from 10.102.1.1: bytes=56 Sequence=4 ttl=254 time=7 ms
+    Reply from 10.102.1.1: bytes=56 Sequence=5 ttl=254 time=7 ms
+
+  --- 10.102.1.1 ping statistics ---
+    5 packet(s) transmitted
+    5 packet(s) received
+    0.00% packet loss
+    round-trip min/avg/max = 7/8/10 ms
+
+
+```
