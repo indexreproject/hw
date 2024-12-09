@@ -14,5 +14,5 @@ Underlay. BGP
 
 Схема сети:
 
-![CLOS](CLOS.png)
+![CLOS](CLOS_IP+Lo.png)
 
