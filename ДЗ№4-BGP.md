@@ -275,6 +275,27 @@ Address family IPv4 Unicast: advertised and received
 
 ```
 
+Пингуем Loopback0 (10.102.3.1) на LEAF3 от LEAF2
+
+```html
+
+<LEAF2>ping -a 10.102.2.1 10.102.3.1
+  PING 10.102.3.1: 56  data bytes, press CTRL_C to break
+    Reply from 10.102.3.1: bytes=56 Sequence=1 ttl=254 time=10 ms
+    Reply from 10.102.3.1: bytes=56 Sequence=2 ttl=254 time=11 ms
+    Reply from 10.102.3.1: bytes=56 Sequence=3 ttl=254 time=7 ms
+    Reply from 10.102.3.1: bytes=56 Sequence=4 ttl=254 time=12 ms
+    Reply from 10.102.3.1: bytes=56 Sequence=5 ttl=254 time=9 ms
+
+  --- 10.102.3.1 ping statistics ---
+    5 packet(s) transmitted
+    5 packet(s) received
+    0.00% packet loss
+    round-trip min/avg/max = 7/9/12 ms
+
+
+```
+
 *Таблицы маршрутизации*
 
 ```html
