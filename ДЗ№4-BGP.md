@@ -85,3 +85,86 @@ bgp 65001
 
 
 ```
+
+Как и написанно выше SPINE 1/2 выступают в роли RR, для этого нужно указать номер кластрера и непосредственно клиентов.
+
+LEAF1
+
+```htlm
+
+interface LoopBack0
+ ip address 10.102.1.1 255.255.255.0
+#
+interface LoopBack1
+ ip address 172.16.0.2 255.255.255.255
+#
+bgp 65001
+ router-id 172.16.0.2
+ peer 10.1.0.0 as-number 65001
+ peer 10.2.0.0 as-number 65001
+ #
+ ipv4-family unicast
+  network 10.1.0.0 255.255.255.254
+  network 10.2.0.0 255.255.255.254
+  network 10.102.1.0 255.255.255.0
+  peer 10.1.0.0 enable
+  peer 10.2.0.0 enable
+#
+
+
+```
+
+LEAF2
+
+```htlm
+
+interface LoopBack0
+ ip address 10.102.2.1 255.255.255.0
+#
+interface LoopBack1
+ ip address 172.16.0.1 255.255.255.255
+#
+bgp 65001
+ router-id 172.16.0.1
+ peer 10.1.0.2 as-number 65001
+ peer 10.2.0.3 as-number 65001
+ #
+ ipv4-family unicast
+  network 10.1.0.2 255.255.255.254
+  network 10.2.0.2 255.255.255.254
+  network 10.102.2.0 255.255.255.0
+  peer 10.1.0.2 enable
+  peer 10.2.0.3 enable
+#
+
+
+```
+
+LEAF3
+
+```htlm
+
+interface LoopBack0
+ ip address 10.102.3.1 255.255.255.0
+#
+interface LoopBack1
+ ip address 172.16.0.3 255.255.255.255
+#
+bgp 65001
+ router-id 172.16.0.3
+ peer 10.1.0.4 as-number 65001
+ peer 10.2.0.5 as-number 65001
+ #
+ ipv4-family unicast
+  network 10.0.0.4 255.255.255.254
+  network 10.1.0.4 255.255.255.254
+  network 10.102.3.0 255.255.255.0
+  peer 10.1.0.4 enable
+  peer 10.2.0.5 enable
+#
+
+
+```
+
+
+Для LEAF'ов указал RR, а также сделал Loopback'и с номером 0, чтобы их анонсировать друг други, а затем проверить их доступность.
