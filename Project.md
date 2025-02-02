@@ -270,4 +270,4 @@ rtt min/avg/max/mdev = 5.332/6.357/9.568/1.612 ms, ipg/ewma 9.298/7.901 ms
 
 ```
 
-
+**Static VXLAN**
