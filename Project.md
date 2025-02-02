@@ -326,7 +326,47 @@ VPCS> ping 192.168.99.101
 
 ```
 
+Чтобы сдеать статическую маршрутизацию, добавим виртуальные адреса на интерфейсы VLAN, на LEAF 1/2.
+
+```html
+interface Vlan88
+   ip address virtual 192.168.88.1/24
+!
+interface Vlan99
+   ip address virtual 192.168.99.1/24
+```
+
+И проверяем связность, добавив хост в 88 VLAN.
+
+
+```html
+
+VPCS> sh ip  
+
+NAME        : VPCS[1]
+IP/MASK     : 192.168.88.101/24
+GATEWAY     : 192.168.88.1
+DNS         : 
+MAC         : 00:50:79:66:68:0c
+LPORT       : 20000
+RHOST:PORT  : 127.0.0.1:30000
+MTU         : 1500
+
+VPCS> ping 192.168.99.101
+
+84 bytes from 192.168.99.101 icmp_seq=1 ttl=62 time=285.674 ms
+84 bytes from 192.168.99.101 icmp_seq=2 ttl=62 time=18.032 ms
+84 bytes from 192.168.99.101 icmp_seq=3 ttl=62 time=15.934 ms
+84 bytes from 192.168.99.101 icmp_seq=4 ttl=62 time=17.469 ms
+84 bytes from 192.168.99.101 icmp_seq=5 ttl=62 time=16.899 ms
+
+VPCS> 
+
+```
+
 **VXLAN EVPN**
 
 Чтобы не было простоя связи, команды можно вводить последовательно, тогда будет минимум потерь пакетов.
+
+
 
