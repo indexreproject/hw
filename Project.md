@@ -85,4 +85,189 @@ end
 
 ```
 
+```html
+
+hostname SPINE2
+!
+spanning-tree mode mstp
+!
+interface Ethernet1
+!
+interface Ethernet2
+   no switchport
+   ip address 10.2.0.5/31
+   ip ospf network point-to-point
+   ip ospf area 0.0.0.0
+!
+interface Ethernet3
+   no switchport
+   ip address 10.2.0.3/31
+   ip ospf network point-to-point
+   ip ospf area 0.0.0.0
+!
+interface Ethernet4
+   no switchport
+   ip address 10.2.0.0/31
+   ip ospf network point-to-point
+   ip ospf area 0.0.0.0
+!
+interface Ethernet5
+!
+interface Ethernet6
+!
+interface Ethernet7
+!
+interface Ethernet8
+!
+interface Loopback1
+   ip address 172.31.0.2/32
+!
+interface Management1
+!
+ip routing
+!
+ip prefix-list LOOPBACKS seq 10 permit 172.31.0.0/16 le 32
+!
+route-map LOOPBACKS permit 10
+   match ip address prefix-list LOOPBACKS
+!
+router bgp 65001
+   maximum-paths 3 ecmp 3
+   neighbor 10.2.0.1 remote-as 65011
+   neighbor 10.2.0.2 remote-as 65021
+   neighbor 10.2.0.4 remote-as 65031
+   redistribute connected route-map LOOPBACKS
+!
+end
+
+```
+
+Далее, лифы.
+
+```html
+hostname LEAF1
+!
+interface Ethernet1
+   no switchport
+   ip address 10.1.0.1/31
+
+interface Ethernet4
+   no switchport
+   ip address 10.2.0.1/31
+
+interface Loopback1
+   ip address 172.16.0.1/32
+!
+ip routing
+!
+ip prefix-list LOOPBACKS seq 10 permit 172.16.0.0/16 le 32
+!
+route-map LOOPBACKS permit 10
+   match ip address prefix-list LOOPBACKS
+!
+router bgp 65011
+   maximum-paths 2 ecmp 2
+   neighbor 10.1.0.0 remote-as 65001
+   neighbor 10.2.0.0 remote-as 65001
+   redistribute connected route-map LOOPBACKS
+!
+end
+
+```
+
+```html
+
+
+hostname LEAF2
+!
+interface Ethernet2
+   no switchport
+   ip address 10.1.0.5/31
+!
+interface Ethernet3
+   no switchport
+   ip address 10.2.0.2/31
+   interface Loopback1
+   ip address 172.16.0.2/32
+!
+ip routing
+!
+ip prefix-list LOOPBACKS seq 10 permit 172.16.0.0/16 le 32
+!
+route-map LOOPBACKS permit 10
+   match ip address prefix-list LOOPBACKS
+!
+router bgp 65021
+   maximum-paths 2 ecmp 2
+   neighbor 10.1.0.4 remote-as 65001
+   neighbor 10.2.0.3 remote-as 65001
+   redistribute connected route-map LOOPBACKS
+!
+end
+
+```
+
+```html
+
+
+hostname LEAF3
+!
+
+interface Ethernet2
+   no switchport
+   ip address 10.2.0.4/31
+
+!
+interface Ethernet3
+   no switchport
+   ip address 10.1.0.3/31
+  interface Loopback1
+   ip address 172.16.0.3/32
+!
+ip routing
+!
+ip prefix-list LOOPBACKS seq 10 permit 172.16.0.0/16 le 32
+!
+route-map LOOPBACKS permit 10
+   match ip address prefix-list LOOPBACKS
+!
+router bgp 65031
+   maximum-paths 2 ecmp 2
+   neighbor 10.1.0.2 remote-as 65001
+   neighbor 10.2.0.5 remote-as 65001
+   redistribute connected route-map LOOPBACKS
+!
+end
+
+```
+
+Проверка:
+
+```html
+
+LEAF1#ping 172.16.0.2 source lo1
+PING 172.16.0.2 (172.16.0.2) from 172.16.0.1 : 72(100) bytes of data.
+80 bytes from 172.16.0.2: icmp_seq=1 ttl=63 time=11.3 ms
+80 bytes from 172.16.0.2: icmp_seq=2 ttl=63 time=7.03 ms
+80 bytes from 172.16.0.2: icmp_seq=3 ttl=63 time=6.03 ms
+80 bytes from 172.16.0.2: icmp_seq=4 ttl=63 time=5.64 ms
+80 bytes from 172.16.0.2: icmp_seq=5 ttl=63 time=5.40 ms
+
+--- 172.16.0.2 ping statistics ---
+5 packets transmitted, 5 received, 0% packet loss, time 43ms
+rtt min/avg/max/mdev = 5.401/7.088/11.335/2.196 ms, ipg/ewma 10.961/9.103 ms
+LEAF1#ping 172.16.0.3 source lo1
+PING 172.16.0.3 (172.16.0.3) from 172.16.0.1 : 72(100) bytes of data.
+80 bytes from 172.16.0.3: icmp_seq=1 ttl=63 time=9.56 ms
+80 bytes from 172.16.0.3: icmp_seq=2 ttl=63 time=5.71 ms
+80 bytes from 172.16.0.3: icmp_seq=3 ttl=63 time=5.45 ms
+80 bytes from 172.16.0.3: icmp_seq=4 ttl=63 time=5.71 ms
+80 bytes from 172.16.0.3: icmp_seq=5 ttl=63 time=5.33 ms
+
+--- 172.16.0.3 ping statistics ---
+5 packets transmitted, 5 received, 0% packet loss, time 37ms
+rtt min/avg/max/mdev = 5.332/6.357/9.568/1.612 ms, ipg/ewma 9.298/7.901 ms
+
+```
+
 
