@@ -435,11 +435,6 @@ router bgp 65031
    neighbor 172.16.0.2 remote-as 65021
    redistribute connected route-map LOOPBACKS
    !
-   vlan 99
-      rd 172.16.0.3:10099
-      route-target both 1:10099
-      redistribute learned
-   !
    address-family evpn
       neighbor OVERLAY activate
    !
@@ -449,6 +444,75 @@ router bgp 65031
 
 ```
 
+Проверяем с помощью команды:
+
+```html
+
+LEAF1#sh bgp summ
+BGP summary information for VRF default
+Router identifier 172.16.0.1, local AS number 65011
+Neighbor            AS Session State AFI/SAFI                AFI/SAFI State   NLRI Rcd   NLRI Acc
+---------- ----------- ------------- ----------------------- -------------- ---------- ----------
+10.1.0.0         65001 Established   IPv4 Unicast            Negotiated              3          3
+10.2.0.0         65001 Established   IPv4 Unicast            Negotiated              3          3
+172.16.0.2       65021 Established   L2VPN EVPN              Negotiated              4          4
+172.16.0.3       65031 Established   L2VPN EVPN              Negotiated              4          4
+
+```
+
+Далее, настроим VLAN-based сервис для VXLAN L2, а также MAC-VRF, последовательно на  LEAF 1,2,3.
 
 
+```html
 
+router bgp 65011
+   !
+   vlan 88
+      rd 172.16.0.1:10088
+      route-target both 1:10088
+      redistribute learned
+   !
+   vlan 99
+      rd 172.16.0.1:10099
+      route-target both 1:10099
+      redistribute learned
+   !
+
+
+```
+
+```html
+
+router bgp 65021
+   vlan 77
+      rd 172.16.0.2:10077
+      route-target both 1:10077
+      redistribute learned
+   !
+   vlan 99
+      rd 172.16.0.2:10099
+      route-target both 1:10099
+      redistribute learned
+
+```
+
+
+```html
+
+router bgp 65031
+   vlan 77
+      rd 172.16.0.3:10077
+      route-target both 1:10077
+      redistribute learned
+   !
+   vlan 88
+      rd 172.16.0.3:10088
+      route-target both 1:10088
+      redistribute learned
+   !
+   vlan 99
+      rd 172.16.0.3:10099
+      route-target both 1:10099
+      redistribute learned
+
+```
