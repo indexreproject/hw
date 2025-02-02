@@ -271,3 +271,62 @@ rtt min/avg/max/mdev = 5.332/6.357/9.568/1.612 ms, ipg/ewma 9.298/7.901 ms
 ```
 
 **Static VXLAN**
+
+По сути, надо настроить один интерфейс VXLAN на трех LEAF'х:
+
+```html
+
+interface Vxlan1
+   vxlan source-interface Loopback1
+   vxlan udp-port 4789
+   vxlan vlan 88 vni 10088
+   vxlan vlan 99 vni 10099
+   vxlan flood vtep 172.16.0.1 172.16.0.2
+
+```
+
+```html
+interface Vxlan1
+   vxlan source-interface Loopback1
+   vxlan udp-port 4789
+   vxlan vlan 99 vni 10099
+   vxlan flood vtep 172.16.0.1 172.16.0.3
+
+```
+
+```html
+
+interface Vxlan1
+   vxlan source-interface Loopback1
+   vxlan udp-port 4789
+   vxlan vlan 88 vni 10088
+   vxlan vlan 99 vni 10099
+   vxlan flood vtep 172.16.0.2 172.16.0.3
+
+```
+
+Для проверки сделаем пару хостов, пока что, не указывая на них шлюз по умалчанию:
+
+На LEAF1 - 192.168.99.101/24
+На LEAF2 - 192.168.99.102/24
+
+```html
+
+VPCS> ip 192.168.99.100/24
+Checking for duplicate address...
+VPCS : 192.168.99.100 255.255.255.0
+
+VPCS> ping 192.168.99.101
+
+84 bytes from 192.168.99.101 icmp_seq=1 ttl=64 time=17.805 ms
+84 bytes from 192.168.99.101 icmp_seq=2 ttl=64 time=15.256 ms
+84 bytes from 192.168.99.101 icmp_seq=3 ttl=64 time=14.718 ms
+84 bytes from 192.168.99.101 icmp_seq=4 ttl=64 time=14.486 ms
+84 bytes from 192.168.99.101 icmp_seq=5 ttl=64 time=14.761 ms
+
+```
+
+**VXLAN EVPN**
+
+Чтобы не было простоя связи, команды можно вводить последовательно, тогда будет минимум потерь пакетов.
+
