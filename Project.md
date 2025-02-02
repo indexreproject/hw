@@ -460,7 +460,7 @@ Neighbor            AS Session State AFI/SAFI                AFI/SAFI State   NL
 
 ```
 
-Далее, настроим VLAN-based сервис для VXLAN L2, а также MAC-VRF, последовательно на  LEAF 1,2,3.
+Далее, настроим VLAN-based сервис для VXLAN L2, а также MAC-VRF, последовательно на  LEAF 1,2,3, .
 
 
 ```html
@@ -516,3 +516,372 @@ router bgp 65031
       redistribute learned
 
 ```
+
+Проверка на хосте:
+
+```html
+
+VPCS> sh ip
+
+NAME        : VPCS[1]
+IP/MASK     : 192.168.99.100/24
+GATEWAY     : 192.168.99.1
+DNS         : 
+MAC         : 00:50:79:66:68:08
+LPORT       : 20000
+RHOST:PORT  : 127.0.0.1:30000
+MTU         : 1500
+
+VPCS> ping 192.168.99.101
+
+84 bytes from 192.168.99.101 icmp_seq=1 ttl=64 time=30.872 ms
+84 bytes from 192.168.99.101 icmp_seq=2 ttl=64 time=14.241 ms
+84 bytes from 192.168.99.101 icmp_seq=3 ttl=64 time=14.523 ms
+^C
+VPCS> 
+
+
+```
+
+**L3 VNI**
+
+Лучше сразу настроить Assymetric IRB для будущего масштабирования и для выхода во внешние сети, а также виртуальный MAC-адрес.
+
+LEAF1
+
+```html
+
+
+!
+service routing protocols model multi-agent
+!
+hostname LEAF1
+
+!
+vrf instance IRB
+!
+cvx
+   no shutdown
+   !
+   service vxlan
+      no shutdown
+      redistribute bgp evpn vxlan
+!
+
+!
+interface Vlan77
+   vrf IRB
+   ip address virtual 192.168.77.1/24
+!
+interface Vlan88
+   vrf IRB
+   ip address virtual 192.168.88.1/24
+!
+interface Vlan99
+   vrf IRB
+   ip address virtual 192.168.99.1/24
+!
+interface Vxlan1
+   vxlan source-interface Loopback1
+   vxlan udp-port 4789
+   vxlan vlan 77 vni 10077
+   vxlan vlan 88 vni 10088
+   vxlan vlan 99 vni 10099
+   vxlan vrf IRB vni 10100
+!
+ip virtual-router mac-address 12:34:56:78:90:12
+!
+ip routing
+ip routing vrf IRB
+
+!
+router bgp 65011
+   !
+   vlan 77
+      rd 172.16.0.1:10077
+      route-target both 1:10077
+      redistribute learned
+   !
+   vlan 88
+      rd 172.16.0.1:10077
+      route-target both 1:10077
+      redistribute learned
+   !
+   vlan 99
+      rd 172.16.0.1:10099
+      route-target both 1:10099
+      redistribute learned
+   !
+   address-family evpn
+      neighbor OVERLAY activate
+   !
+   address-family ipv4
+      no neighbor OVERLAY activate
+   !
+   vrf IRB
+      rd 172.16.0.1:10100
+      route-target import evpn 1:10100
+      route-target export evpn 1:10100
+!
+end
+
+```
+
+LEAF2
+
+```html
+
+
+service routing protocols model multi-agent
+!
+hostname LEAF2
+!
+spanning-tree mode mstp
+!
+vlan 77
+!
+vlan 99
+   name VXLAN
+!
+vrf instance IRB
+!
+cvx
+   no shutdown
+   !
+   service vxlan
+      no shutdown
+      redistribute bgp evpn vxlan
+!
+
+!
+interface Vlan77
+   vrf IRB
+   ip address virtual 192.168.77.1/24
+!
+interface Vlan99
+   vrf IRB
+   ip address virtual 192.168.99.1/24
+!
+interface Vxlan1
+   vxlan source-interface Loopback1
+   vxlan udp-port 4789
+   vxlan vlan 77 vni 10077
+   vxlan vlan 99 vni 10099
+   vxlan vrf IRB vni 10100
+!
+ip virtual-router mac-address 12:34:56:78:90:12
+!
+ip routing
+ip routing vrf IRB
+
+!
+router bgp 65021
+
+   !
+   vlan 77
+      rd 172.16.0.2:10077
+      route-target both 1:10077
+      redistribute learned
+   !
+   vlan 99
+      rd 172.16.0.2:10099
+      route-target both 1:10099
+      redistribute learned
+   !
+   address-family evpn
+      neighbor OVERLAY activate
+   !
+   address-family ipv4
+      no neighbor OVERLAY activate
+   !
+   vrf IRB
+      rd 172.16.0.2:10100
+      route-target import evpn 1:10100
+      route-target export evpn 1:10100
+!
+end
+
+```
+
+
+LEAF3
+
+```html
+
+
+!
+service routing protocols model multi-agent
+!
+hostname LEAF3
+!
+spanning-tree mode mstp
+!
+vlan 77,88,99
+!
+vrf instance IRB
+!
+interface Vlan77
+   vrf IRB
+   ip address virtual 192.168.77.1/24
+!
+interface Vlan88
+   vrf IRB
+   ip address virtual 198.168.88.1/24
+!
+interface Vlan99
+   vrf IRB
+   ip address virtual 192.168.99.1/24
+!
+interface Vxlan1
+   vxlan source-interface Loopback1
+   vxlan udp-port 4789
+   vxlan vlan 77 vni 10077
+   vxlan vlan 88 vni 10088
+   vxlan vrf IRB vni 10100
+!
+ip virtual-router mac-address 12:34:56:78:90:12
+!
+ip routing
+ip routing vrf IRB
+!
+
+   !
+   vrf IRB
+      rd 172.16.0.3:10100
+      route-target import evpn 1:10100
+      route-target export evpn 1:10100
+!
+end
+
+```
+
+Проерить можно с тех же хостов, добавив VLAN 77,88:
+
+```html
+
+VPCS> sh ip
+
+NAME        : VPCS[1]
+IP/MASK     : 192.168.99.100/24
+GATEWAY     : 192.168.99.1
+DNS         : 
+MAC         : 00:50:79:66:68:08
+LPORT       : 20000
+RHOST:PORT  : 127.0.0.1:30000
+MTU         : 1500
+
+VPCS> ping 192.168.77.102
+
+84 bytes from 192.168.77.102 icmp_seq=1 ttl=62 time=275.775 ms
+84 bytes from 192.168.77.102 icmp_seq=2 ttl=62 time=16.975 ms
+84 bytes from 192.168.77.102 icmp_seq=3 ttl=62 time=17.159 ms
+84 bytes from 192.168.77.102 icmp_seq=4 ttl=62 time=17.138 ms
+84 bytes from 192.168.77.102 icmp_seq=5 ttl=62 time=17.414 ms
+
+VPCS> 
+
+```
+
+```html
+
+VPCS> sh ip
+
+NAME        : VPCS[1]
+IP/MASK     : 192.168.77.102/24
+GATEWAY     : 192.168.77.1
+DNS         : 
+MAC         : 00:50:79:66:68:0b
+LPORT       : 20000
+RHOST:PORT  : 127.0.0.1:30000
+MTU         : 1500
+
+VPCS> ping 192.168.99.100
+
+84 bytes from 192.168.99.100 icmp_seq=1 ttl=62 time=58.746 ms
+84 bytes from 192.168.99.100 icmp_seq=2 ttl=62 time=21.099 ms
+84 bytes from 192.168.99.100 icmp_seq=3 ttl=62 time=18.310 ms
+^C
+VPCS>
+
+```
+
+Диагностические данные:
+
+LEAF1:
+
+```html
+
+LEAF1#sh bgp evpn route-type mac-ip
+BGP routing table information for VRF default
+Router identifier 172.16.0.1, local AS number 65011
+Route status codes: * - valid, > - active, S - Stale, E - ECMP head, e - ECMP
+                    c - Contributing to ECMP, % - Pending BGP convergence
+Origin codes: i - IGP, e - EGP, ? - incomplete
+AS Path Attributes: Or-ID - Originator ID, C-LST - Cluster List, LL Nexthop - Link Local Nexthop
+
+          Network                Next Hop              Metric  LocPref Weight  Path
+ * >      RD: 172.16.0.2:10099 mac-ip 0050.7966.6803
+                                 172.16.0.2            -       100     0       65021 i
+ *        RD: 172.16.0.2:10099 mac-ip 0050.7966.6803
+                                 172.16.0.2            -       100     0       65031 65021 i
+ * >      RD: 172.16.0.2:10099 mac-ip 0050.7966.6803 192.168.99.101
+                                 172.16.0.2            -       100     0       65021 i
+ *        RD: 172.16.0.2:10099 mac-ip 0050.7966.6803 192.168.99.101
+                                 172.16.0.2            -       100     0       65031 65021 i
+ * >      RD: 172.16.0.3:10088 mac-ip 0050.7966.6805
+                                 172.16.0.3            -       100     0       65031 i
+ *        RD: 172.16.0.3:10088 mac-ip 0050.7966.6805
+                                 172.16.0.3            -       100     0       65021 65031 i
+ * >      RD: 172.16.0.1:10099 mac-ip 0050.7966.6808
+                                 -                     -       -       0       i
+ * >      RD: 172.16.0.1:10099 mac-ip 0050.7966.6808 192.168.99.100
+                                 -                     -       -       0       i
+ * >      RD: 172.16.0.1:10077 mac-ip 0050.7966.6809
+                                 -                     -       -       0       i
+ * >      RD: 172.16.0.1:10077 mac-ip 0050.7966.6809 192.168.77.100
+                                 -                     -       -       0       i
+ * >      RD: 172.16.0.3:10077 mac-ip 0050.7966.680a
+                                 172.16.0.3            -       100     0       65031 i
+ *        RD: 172.16.0.3:10077 mac-ip 0050.7966.680a
+                                 172.16.0.3            -       100     0       65021 65031 i
+ * >      RD: 172.16.0.3:10077 mac-ip 0050.7966.680a 192.168.77.101
+                                 172.16.0.3            -       100     0       65031 i
+ *        RD: 172.16.0.3:10077 mac-ip 0050.7966.680a 192.168.77.101
+                                 172.16.0.3            -       100     0       65021 65031 i
+ * >      RD: 172.16.0.2:10077 mac-ip 0050.7966.680b
+                                 172.16.0.2            -       100     0       65021 i
+ *        RD: 172.16.0.2:10077 mac-ip 0050.7966.680b
+                                 172.16.0.2            -       100     0       65031 65021 i
+ * >      RD: 172.16.0.2:10077 mac-ip 0050.7966.680b 192.168.77.102
+                                 172.16.0.2            -       100     0       65021 i
+ *        RD: 172.16.0.2:10077 mac-ip 0050.7966.680b 192.168.77.102
+                                 172.16.0.2            -       100     0       65031 65021 i
+LEAF1#
+LEAF1#
+
+```
+
+
+LEAF2:
+
+```html
+
+LEAF2#sh bgp evpn route-type mac-ip 192.168.77.101 de
+BGP routing table information for VRF default
+Router identifier 172.16.0.2, local AS number 65021
+BGP routing table entry for mac-ip 0050.7966.680a 192.168.77.101, Route Distinguisher: 172.16.0.3:10077
+ Paths: 2 available
+  65031
+    172.16.0.3 from 172.16.0.3 (172.16.0.3)
+      Origin IGP, metric -, localpref 100, weight 0, tag 0, valid, external, best
+      Extended Community: Route-Target-AS:1:10077 Route-Target-AS:1:10100 TunnelEncap:tunnelTypeVxlan EvpnRouterMac:50:00:00:f6:ad:37
+      VNI: 10077 L3 VNI: 10100 ESI: 0000:0000:0000:0000:0000
+  65011 65031
+    172.16.0.3 from 172.16.0.1 (172.16.0.1)
+      Origin IGP, metric -, localpref 100, weight 0, tag 0, valid, external
+      Extended Community: Route-Target-AS:1:10077 Route-Target-AS:1:10100 TunnelEncap:tunnelTypeVxlan EvpnRouterMac:50:00:00:f6:ad:37
+      VNI: 10077 L3 VNI: 10100 ESI: 0000:0000:0000:0000:0000
+LEAF2#
+
+```
+
