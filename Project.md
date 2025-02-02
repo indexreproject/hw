@@ -368,5 +368,87 @@ VPCS>
 
 Чтобы не было простоя связи, команды можно вводить последовательно, тогда будет минимум потерь пакетов.
 
+Настроим eBGP для EVPN, последовательно для LEAF 1,2,3.
+
+```html
+
+router bgp 65011
+   maximum-paths 2 ecmp 2
+   neighbor OVERLAY peer group
+   neighbor OVERLAY update-source Loopback1
+   neighbor OVERLAY ebgp-multihop 4
+   neighbor OVERLAY send-community
+   neighbor 10.1.0.0 remote-as 65001
+   neighbor 10.2.0.0 remote-as 65001
+   neighbor 172.16.0.2 peer group OVERLAY
+   neighbor 172.16.0.2 remote-as 65021
+   neighbor 172.16.0.3 peer group OVERLAY
+   neighbor 172.16.0.3 remote-as 65031
+   redistribute connected route-map LOOPBACKS
+   !
+   address-family evpn
+      neighbor OVERLAY activate
+   !
+   address-family ipv4
+      no neighbor OVERLAY activate
+   !
+
+```
+
+```html
+
+router bgp 65021
+   maximum-paths 2 ecmp 2
+   neighbor OVERLAY peer group
+   neighbor OVERLAY update-source Loopback1
+   neighbor OVERLAY ebgp-multihop 4
+   neighbor OVERLAY send-community
+   neighbor 10.1.0.4 remote-as 65001
+   neighbor 10.2.0.3 remote-as 65001
+   neighbor 172.16.0.1 peer group OVERLAY
+   neighbor 172.16.0.1 remote-as 65011
+   neighbor 172.16.0.3 peer group OVERLAY
+   neighbor 172.16.0.3 remote-as 65031
+   redistribute connected route-map LOOPBACKS
+   !
+   address-family evpn
+      neighbor OVERLAY activate
+   !
+   address-family ipv4
+      no neighbor OVERLAY activate
+
+```
+
+```html
+
+router bgp 65031
+   maximum-paths 2 ecmp 2
+   neighbor OVERLAY peer group
+   neighbor OVERLAY update-source Loopback1
+   neighbor OVERLAY ebgp-multihop 4
+   neighbor OVERLAY send-community
+   neighbor 10.1.0.2 remote-as 65001
+   neighbor 10.2.0.5 remote-as 65001
+   neighbor 172.16.0.1 peer group OVERLAY
+   neighbor 172.16.0.1 remote-as 65011
+   neighbor 172.16.0.2 peer group OVERLAY
+   neighbor 172.16.0.2 remote-as 65021
+   redistribute connected route-map LOOPBACKS
+   !
+   vlan 99
+      rd 172.16.0.3:10099
+      route-target both 1:10099
+      redistribute learned
+   !
+   address-family evpn
+      neighbor OVERLAY activate
+   !
+   address-family ipv4
+      no neighbor OVERLAY activate
+   !
+
+```
+
+
 
 
